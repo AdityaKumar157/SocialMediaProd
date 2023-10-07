@@ -76,14 +76,14 @@ export const login = async(req, res, next) => {
 
     let token;
     try {
-        token = jwt.sign({_id: existingUser.email.toString()}, process.env.SECRET_KEY);
+        token = jwt.sign({_id: existingUser.id.toString()}, process.env.SECRET_KEY);
         //existingUser.tokens.push(token);
         existingUser.tokens = existingUser.tokens.concat({token: token});
         await existingUser.save();
         res.cookie("SMP", token, {
             expires: new Date(Date.now() + 6000000),
             httpOnly: true,
-            secure: true,
+            secure: false,
         });
     } catch (error) {
         console.log(error);
@@ -91,4 +91,40 @@ export const login = async(req, res, next) => {
     }
 
     return res.status(200).json({message: "Login successfull!!"});
+}
+
+export const logoutUser = async(req,res,next) => {
+    const signedUser = req.user;
+
+    let token = req.cookies["SMP"];
+    if(token == null) {
+        return res.status(200).json({message: "User is already logged out."});
+    }
+
+    try {
+        signedUser.tokens = []; //logout from all devices
+        res.clearCookie("SMP");
+        await signedUser.save();
+    } catch (error) {
+        console.log(error);
+        res.clearCookie("SMP");
+        return res.status(400).json({message: "We have faced some internal errors. Please try again."});
+    }
+    return res.status(200).json({message: "User is logged out successfully."});
+}
+
+export const getMyProfile = async(req,res,next) => {
+    const signedUser = req.user;
+    let userProfileData;
+    try {
+        userProfileData = {
+            "name": signedUser.name,
+            "email": signedUser.email,
+            "blogs": signedUser.blogs
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({message: "Failed to get information of user."});
+    }
+    return res.status(200).json({userProfileData});
 }

@@ -3,12 +3,14 @@ import mongoose from 'mongoose';
 import router from './routes/user-routes';
 import blogRouter from './routes/blog-routes';
 import dotenv from "dotenv";
+import cookieParser from 'cookie-parser';
 
 const PORT = process.env.PORT || 8000;
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser()); //put cookie parser before routes to make it work properly.
 app.use("/api/user", router);
 app.use("/api/blog", blogRouter);
 
