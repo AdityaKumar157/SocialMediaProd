@@ -1,5 +1,5 @@
 import express from "express";
-import { getAllUsers, getMyProfile, login, logoutUser, signup } from "../controllers/user-controller";
+import { getAllUsers, getMyProfile, login, logoutUser, signup, updateUserProfile } from "../controllers/user-controller";
 import { auth } from '../middleware/auth';
 import { isUserLoggedOut } from "../middleware/isUserLoggedOut";
 
@@ -14,5 +14,7 @@ router.post("/login", login);
 router.get("/logout", auth, logoutUser);
 
 router.get("/myProfile", auth, getMyProfile);
+
+router.put("/updateProfile", auth, updateUserProfile);
 
 export default router;
