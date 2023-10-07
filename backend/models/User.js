@@ -17,6 +17,12 @@ const userSchema = new Schema({
         required: true,
         minlength: 6
     },
+    gender: {
+        type: String,
+    },
+    country: {
+        type: String,
+    },
     blogs: [{
         type: mongoose.Types.ObjectId,
         ref: "Blog",

@@ -120,6 +120,8 @@ export const getMyProfile = async(req,res,next) => {
         userProfileData = {
             "name": signedUser.name,
             "email": signedUser.email,
+            "gender": signedUser.gender,
+            "country": signedUser.country,
             "blogs": signedUser.blogs
         }
     } catch (error) {
@@ -127,4 +129,39 @@ export const getMyProfile = async(req,res,next) => {
         return res.status(400).json({message: "Failed to get information of user."});
     }
     return res.status(200).json({userProfileData});
+}
+
+export const updateUserProfile = async(req,res,next) => {
+    const {name, gender, country} = req.body;
+    if(name==null || gender==null || country==null) {
+        console.log("One or more field(s) is empty.");
+        return res.status(400).json({message: "Fields(s) cannot be empty."});
+    }
+
+    const signedUser = req.user;
+    if(signedUser==null) {
+        console.log("Signed user is null.");
+        return res.status(404).json({message: "Failed to update profile due to some internal errors. Please try to login and update again."});
+    }
+
+    try {
+        await User.findByIdAndUpdate(signedUser.id, {
+            name,
+            gender,
+            country
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({message: "Failed to update user profile."});
+    }
+
+    let updatedUser;
+    try {
+        updatedUser = await User.findById(signedUser.id);
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({message: "Profile updated successfully. Referesh to view your profile."});
+    }
+
+    return res.status(200).json({message: "User profile updated successfully.", updatedProfile: updatedUser});
 }
